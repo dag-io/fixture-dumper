@@ -1,5 +1,5 @@
 {
-    "name": "sp/fixture-dumper",
+    "name": "dag-io/fixture-dumper",
     "type": "library",
     "description": "Dump fixtures from doctrine.",
     "keywords": ["database", "fixture", "dumper"],
