@@ -28,7 +28,7 @@ class YamlFixtureGenerator extends AbstractAliceGenerator
     public function createFilename(ClassMetadata $metadata, $multipleFiles = true)
     {
         if ($multipleFiles) {
-            return lcfirst($this->namingStrategy->fixtureName($metadata) .'.yml');
+            return $this->namingStrategy->fixtureName($metadata) .'.yml';
         }
 
         return 'fixtures.yml';
