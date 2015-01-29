@@ -64,11 +64,12 @@ abstract class AbstractDumper
     }
 
     /**
-     * @param       $path
-     * @param       $format
-     * @param array $options
+     * @param        $path
+     * @param        $format
+     * @param array  $options
+     * @param string $entityFilter
      */
-    public function dump($path, $format, array $options = array())
+    public function dump($path, $format, array $options = array(), $entityFilter = null)
     {
         $metadata = $this->getDumpOrder($this->getAllMetadata());
         $generator = $this->generators->get($format)->get();
@@ -77,6 +78,15 @@ abstract class AbstractDumper
 
         $fixtures = array();
         foreach ($metadata as $data) {
+            /*
+             * Apply the filter
+             */
+            if ($entityFilter !== null) {
+                if (!fnmatch($entityFilter, $data->name)) {
+                    continue;
+                }
+            }
+
             $fixture = $generator->generate($data, null, $options);
             if ($this->dumpMultipleFiles) {
                 $fileName = $generator->createFileName($data, true);
