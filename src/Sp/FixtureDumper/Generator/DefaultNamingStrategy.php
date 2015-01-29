@@ -35,6 +35,6 @@ class DefaultNamingStrategy implements NamingStrategyInterface
         $identifiers = $metadata->getIdentifierValues($model);
         $className = strtolower(preg_replace('/([A-Z])/', '_$1', lcfirst(ClassUtils::getClassName($metadata->getName()))));
 
-        return $className . ($identifiers ? '_' : '') . implode('_', $identifiers);
+        return $className . implode('_', $identifiers);
     }
 }
