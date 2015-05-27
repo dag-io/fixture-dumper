@@ -12,6 +12,7 @@
 namespace Sp\FixtureDumper\Generator;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Exception;
 use Sp\FixtureDumper\Util\ClassUtils;
 
 /**
@@ -32,9 +33,43 @@ class DefaultNamingStrategy implements NamingStrategyInterface
      */
     public function modelName($model, ClassMetadata $metadata)
     {
-        $identifiers = $metadata->getIdentifierValues($model);
-        $className = strtolower(preg_replace('/([A-Z])/', '_$1', lcfirst(ClassUtils::getClassName($metadata->getName()))));
+        $identifiers = $this->getIdentifierValues($model, $metadata);
+        $className = strtolower(
+            preg_replace(
+                '/([A-Z])/',
+                '_$1',
+                lcfirst(ClassUtils::getClassName($metadata->getName()))
+            )
+        );
 
         return $className . implode('_', $identifiers);
+    }
+
+    private function getIdentifierValues($model, ClassMetadata $metadata)
+    {
+        $identifierValues = $metadata->getIdentifierValues($model);
+
+        foreach ($identifierValues as $associationName => &$value) {
+            if (is_object($value)) {
+                $mapping = $metadata->getAssociationMapping(
+                    $associationName
+                );
+
+                if (!isset($mapping['joinColumns'][0])) {
+                    throw new Exception(
+                        sprintf(
+                            'There are no join columns for association "%s" in model "%s"',
+                            $associationName,
+                            get_class($model)
+                        )
+                    );
+                }
+
+                $referencedColumnName = $mapping['joinColumns'][0]['referencedColumnName'];
+                $value = $value->{'get'.$referencedColumnName}();
+            }
+        }
+
+        return $identifierValues;
     }
 }
